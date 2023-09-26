@@ -3,7 +3,7 @@ use serde_json::Value;
 use tokio::sync::mpsc;
 use validator::{Validate, ValidationError};
 
-use super::endpoints::{BeaconEndpoint, HistoryEndpoint, StateEndpoint};
+use super::endpoints::{BeaconEndpoint, HistoryEndpoint, StateEndpoint, CanonicalIndicesEndpoint};
 use super::params::Params;
 
 type Responder<T, E> = mpsc::UnboundedSender<Result<T, E>>;
@@ -58,6 +58,13 @@ pub struct StateJsonRpcRequest {
 #[derive(Debug)]
 pub struct BeaconJsonRpcRequest {
     pub endpoint: BeaconEndpoint,
+    pub resp: Responder<Value, String>,
+}
+
+/// CanonicalIndices network JSON-RPC request
+#[derive(Debug, Clone)]
+pub struct CanonicalIndicesJsonRpcRequest {
+    pub endpoint: CanonicalIndicesEndpoint,
     pub resp: Responder<Value, String>,
 }
 

@@ -18,6 +18,8 @@ pub struct PortalnetEvents {
     pub state_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
     /// Send overlay `TalkReq` to beacon network
     pub beacon_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
+    // Send overlay `TalkReq` to canonical indices network
+    pub canonical_indices_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
     /// Send TalkReq events with "utp" protocol id to `UtpListener`
     pub utp_talk_reqs: mpsc::UnboundedSender<TalkRequest>,
 }
@@ -28,6 +30,7 @@ impl PortalnetEvents {
         history_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
         state_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
         beacon_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
+        canonical_indices_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
         utp_talk_reqs: mpsc::UnboundedSender<TalkRequest>,
     ) -> Self {
         Self {
@@ -35,6 +38,7 @@ impl PortalnetEvents {
             history_overlay_sender,
             state_overlay_sender,
             beacon_overlay_sender,
+            canonical_indices_overlay_sender,
             utp_talk_reqs,
         }
     }
@@ -84,6 +88,16 @@ impl PortalnetEvents {
                             }
                         }
                         None => error!("State event handler not initialized!"),
+                    };
+                }
+                ProtocolId::CanonicalIndices => {
+                    match &self.canonical_indices_overlay_sender {
+                        Some(tx) => {
+                            if let Err(err) = tx.send(request) {
+                                error!("Error sending discv5 talk request to canonical indices network: {err}");
+                            }
+                        }
+                        None => error!("Canonical indicies event handler not initialized!"),
                     };
                 }
                 ProtocolId::Utp => {

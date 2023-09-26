@@ -1,12 +1,12 @@
 use crate::errors::{RpcError, WsHttpSamePortError};
 use crate::jsonrpsee::{Methods, RpcModule};
 use crate::rpc_server::{RpcServerConfig, RpcServerHandle};
-use crate::{BeaconNetworkApi, Discv5Api, EthApi, HistoryNetworkApi, Web3Api};
+use crate::{BeaconNetworkApi, Discv5Api, EthApi, HistoryNetworkApi, Web3Api, CanonicalIndicesNetworkApi};
 use ethportal_api::types::jsonrpc::request::{
-    BeaconJsonRpcRequest, HistoryJsonRpcRequest, StateJsonRpcRequest,
+    BeaconJsonRpcRequest, HistoryJsonRpcRequest, StateJsonRpcRequest, CanonicalIndicesJsonRpcRequest,
 };
 use ethportal_api::{
-    BeaconNetworkApiServer, Discv5ApiServer, EthApiServer, HistoryNetworkApiServer, Web3ApiServer,
+    BeaconNetworkApiServer, Discv5ApiServer, EthApiServer, HistoryNetworkApiServer, Web3ApiServer, CanonicalIndicesNetworkApiServer
 };
 use portalnet::discovery::Discovery;
 use serde::Deserialize;
@@ -33,6 +33,8 @@ pub enum PortalRpcModule {
     History,
     /// `web3_` module
     Web3,
+    /// `portal_canonicalIndics` module
+    CanonicalIndices,
 }
 
 impl PortalRpcModule {
@@ -282,6 +284,8 @@ pub struct RpcModuleBuilder {
     beacon_tx: Option<mpsc::UnboundedSender<BeaconJsonRpcRequest>>,
     /// State protocol
     state_tx: Option<mpsc::UnboundedSender<StateJsonRpcRequest>>,
+    // Transaction protocol
+    canonical_indices_tx: Option<mpsc::UnboundedSender<CanonicalIndicesJsonRpcRequest>>,
 }
 
 impl RpcModuleBuilder {
@@ -292,6 +296,7 @@ impl RpcModuleBuilder {
             history_tx: None,
             beacon_tx: None,
             state_tx: None,
+            canonical_indices_tx: None,
         }
     }
 
@@ -316,6 +321,14 @@ impl RpcModuleBuilder {
         beacon_tx: Option<mpsc::UnboundedSender<BeaconJsonRpcRequest>>,
     ) -> Self {
         self.beacon_tx = beacon_tx;
+        self
+    }
+
+    pub fn maybe_with_canonical_indices(
+        mut self,
+        blob_tx: Option<mpsc::UnboundedSender<CanonicalIndicesJsonRpcRequest>>,
+    ) -> Self {
+        self.canonical_indices_tx = blob_tx;
         self
     }
 
@@ -416,6 +429,13 @@ impl RpcModuleBuilder {
                                 .clone()
                                 .expect("Beacon protocol not initialized");
                             BeaconNetworkApi::new(beacon_tx).into_rpc().into()
+                        }
+                        PortalRpcModule::CanonicalIndices => {
+                            let blob_tx = self
+                                .canonical_indices_tx
+                                .clone()
+                                .expect("Canonical indices protocol not initialized");
+                            CanonicalIndicesNetworkApi::new(blob_tx).into_rpc().into()
                         }
                         PortalRpcModule::Web3 => Web3Api.into_rpc().into(),
                     })

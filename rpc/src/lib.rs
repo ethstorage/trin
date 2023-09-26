@@ -10,6 +10,7 @@ mod history_rpc;
 mod rpc_server;
 mod serde;
 mod web3_rpc;
+mod canonical_indices_rpc;
 
 use crate::jsonrpsee::server::ServerBuilder;
 pub use crate::rpc_server::RpcServerHandle;
@@ -20,13 +21,14 @@ use errors::RpcError;
 use eth_rpc::EthApi;
 use ethportal_api::jsonrpsee;
 use ethportal_api::types::cli::{
-    TrinConfig, Web3TransportType, BEACON_NETWORK, HISTORY_NETWORK, STATE_NETWORK,
+    TrinConfig, Web3TransportType, BEACON_NETWORK, HISTORY_NETWORK, STATE_NETWORK, CANONICAL_INDICES_NETWORK
 };
 use ethportal_api::types::jsonrpc::request::{
-    BeaconJsonRpcRequest, HistoryJsonRpcRequest, StateJsonRpcRequest,
+    BeaconJsonRpcRequest, HistoryJsonRpcRequest, StateJsonRpcRequest, CanonicalIndicesJsonRpcRequest,
 };
 use history_rpc::HistoryNetworkApi;
 use web3_rpc::Web3Api;
+use canonical_indices_rpc::CanonicalIndicesNetworkApi;
 
 use crate::rpc_server::RpcServerConfig;
 use portalnet::discovery::Discovery;
@@ -40,6 +42,7 @@ pub async fn launch_jsonrpc_server(
     history_handler: Option<mpsc::UnboundedSender<HistoryJsonRpcRequest>>,
     state_handler: Option<mpsc::UnboundedSender<StateJsonRpcRequest>>,
     beacon_handler: Option<mpsc::UnboundedSender<BeaconJsonRpcRequest>>,
+    canonical_indices_handler: Option<mpsc::UnboundedSender<CanonicalIndicesJsonRpcRequest>>,
 ) -> Result<RpcServerHandle, RpcError> {
     // Discv5 and Web3 modules are enabled with every network
     let mut modules = vec![PortalRpcModule::Discv5, PortalRpcModule::Web3];
@@ -54,6 +57,9 @@ pub async fn launch_jsonrpc_server(
                 // not implemented
             }
             BEACON_NETWORK => modules.push(PortalRpcModule::Beacon),
+            CANONICAL_INDICES_NETWORK => {
+                modules.push(PortalRpcModule::CanonicalIndices);
+            },
             _ => panic!("Unexpected network type: {}", network),
         }
     }
@@ -65,6 +71,7 @@ pub async fn launch_jsonrpc_server(
                 .maybe_with_history(history_handler)
                 .maybe_with_beacon(beacon_handler)
                 .maybe_with_state(state_handler)
+                .maybe_with_canonical_indices(canonical_indices_handler)
                 .build(transport);
 
             RpcServerConfig::default()
@@ -84,6 +91,7 @@ pub async fn launch_jsonrpc_server(
                 .maybe_with_history(history_handler)
                 .maybe_with_beacon(beacon_handler)
                 .maybe_with_state(state_handler)
+                .maybe_with_canonical_indices(canonical_indices_handler)
                 .build(transport);
 
             RpcServerConfig::default()

@@ -11,6 +11,7 @@ impl From<ProtocolLabel> for MetricLabel {
             ProtocolLabel::CanonicalIndices => "canonical_indices",
             ProtocolLabel::Beacon => "beacon",
             ProtocolLabel::Utp => "utp",
+            ProtocolLabel::Blob => "blob",
         }
     }
 }
@@ -90,6 +91,7 @@ pub enum ProtocolLabel {
     CanonicalIndices,
     Beacon,
     Utp,
+    Blob,
 }
 
 /// Message Direction Labels

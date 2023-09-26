@@ -1,6 +1,6 @@
 use crate::types::enr::Enr;
-use crate::{BeaconContentKey, HistoryContentKey};
-use crate::{BeaconContentValue, HistoryContentValue};
+use crate::{BeaconContentKey, HistoryContentKey, CanonicalIndicesContentKey};
+use crate::{BeaconContentValue, HistoryContentValue, CanonicalIndicesContentValue};
 use discv5::enr::NodeId;
 
 /// Discv5 JSON-RPC endpoints. Start with "discv5_" prefix
@@ -95,6 +95,45 @@ pub enum BeaconEndpoint {
     TraceRecursiveFindContent(BeaconContentKey),
     /// params: [content_key, content_value]
     Store(BeaconContentKey, BeaconContentValue),
+    /// params: None
+    RoutingTableInfo,
+    /// params: [offset, limit]
+    PaginateLocalContentKeys(u64, u64),
+    /// params: [node_id]
+    RecursiveFindNodes(NodeId),
+}
+
+/// Canonical indices network JSON-RPC endpoints. Start with "portal_canonicalIndices" prefix
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub enum CanonicalIndicesEndpoint {
+    /// params: [enr]
+    AddEnr(Enr),
+    /// params: None
+    DataRadius,
+    /// params: [node_id]
+    DeleteEnr(NodeId),
+    /// params: [enr, content_key]
+    FindContent(Enr, CanonicalIndicesContentKey),
+    /// params: [enr, distances]
+    FindNodes(Enr, Vec<u16>),
+    /// params: [node_id]
+    GetEnr(NodeId),
+    /// params: content_key
+    LocalContent(CanonicalIndicesContentKey),
+    /// params: [node_id]
+    LookupEnr(NodeId),
+    /// params: [content_key, content_value]
+    Gossip(CanonicalIndicesContentKey, CanonicalIndicesContentValue),
+    /// params: [enr, content_key]
+    Offer(Enr, CanonicalIndicesContentKey, Option<CanonicalIndicesContentValue>),
+    /// params: [enr]
+    Ping(Enr),
+    /// params: content_key
+    RecursiveFindContent(CanonicalIndicesContentKey),
+    /// params: content_key
+    TraceRecursiveFindContent(CanonicalIndicesContentKey),
+    /// params: [content_key, content_value]
+    Store(CanonicalIndicesContentKey, CanonicalIndicesContentValue),
     /// params: None
     RoutingTableInfo,
     /// params: [offset, limit]

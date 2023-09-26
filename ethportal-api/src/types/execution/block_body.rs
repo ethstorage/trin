@@ -126,6 +126,12 @@ impl BlockBody {
     }
 
     pub fn transactions_root(&self) -> anyhow::Result<H256> {
+        self.transactions_trie()?
+            .root_hash()
+            .map_err(|err| anyhow!("Error calculating transactions root: {err:?}"))
+    }
+
+    pub fn transactions_trie(&self) -> anyhow::Result<EthTrie<MemoryDB>> {
         let memdb = Arc::new(MemoryDB::new(true));
         let mut trie = EthTrie::new(memdb);
 
@@ -137,8 +143,7 @@ impl BlockBody {
                 .map_err(|err| anyhow!("Error calculating transactions root: {err:?}"))?;
         }
 
-        trie.root_hash()
-            .map_err(|err| anyhow!("Error calculating transactions root: {err:?}"))
+        Ok(trie)
     }
 
     pub fn uncles_root(&self) -> anyhow::Result<H256> {
@@ -399,6 +404,31 @@ mod tests {
         assert_eq!(
             hex_encode(block_body.transactions_root().unwrap()),
             expected_tx_root
+        );
+    }
+
+    #[test_log::test]
+    fn block_body_validates_transcations_proof() {
+        let block_body = get_14764013_block_body();
+        let mut trie = block_body.transactions_trie().unwrap();
+        let root = trie.root_hash().unwrap();
+
+        for (i, tx) in block_body.transactions().unwrap().into_iter().enumerate() {
+            let key = rlp::encode(&i).freeze().to_vec();
+            let proof = trie.get_proof(&key).unwrap();
+            let verify_result = trie.verify_proof(root, &key, proof).unwrap();
+            assert_eq!(
+                tx.encode(),
+                verify_result.unwrap(),
+            );
+        }
+
+        let key = rlp::encode(&block_body.transactions().unwrap().len()).freeze().to_vec();
+        let proof = trie.get_proof(&key).unwrap();
+        let verify_result = trie.verify_proof(root, &key, proof).unwrap();
+        assert_eq!(
+            verify_result,
+            None,
         );
     }
 

@@ -6310,6 +6310,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "trin-beacon",
+ "trin-canonical-indices",
  "trin-history",
  "trin-state",
  "trin-utils",
@@ -6334,6 +6335,37 @@ dependencies = [
  "tracing",
  "trin-utils",
  "trin-validation",
+ "utp-rs",
+]
+
+[[package]]
+name = "trin-canonical-indices"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "discv5",
+ "env_logger 0.9.3",
+ "eth2_ssz",
+ "eth2_ssz_types",
+ "eth_trie",
+ "ethereum-types 0.12.1",
+ "ethportal-api",
+ "httpmock",
+ "keccak-hash 0.8.0",
+ "parking_lot 0.11.2",
+ "portalnet",
+ "rlp",
+ "rstest 0.18.2",
+ "serde_json",
+ "test-log",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "tree_hash",
+ "trin-utils",
+ "trin-validation",
+ "ureq",
  "utp-rs",
 ]
 

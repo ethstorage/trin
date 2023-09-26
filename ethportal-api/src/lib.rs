@@ -14,12 +14,14 @@ mod history;
 pub mod types;
 pub mod utils;
 mod web3;
+mod canonical_indices;
 
 pub use crate::discv5::{Discv5ApiClient, Discv5ApiServer};
 pub use beacon::{BeaconNetworkApiClient, BeaconNetworkApiServer};
 pub use eth::{EthApiClient, EthApiServer};
 pub use history::{HistoryNetworkApiClient, HistoryNetworkApiServer};
 pub use web3::{Web3ApiClient, Web3ApiServer};
+pub use canonical_indices::{CanonicalIndicesNetworkApiClient, CanonicalIndicesNetworkApiServer};
 
 pub use types::content_key::{
     beacon::{BeaconContentKey, LightClientBootstrapKey, LightClientUpdatesByRangeKey},
@@ -30,6 +32,7 @@ pub use types::content_key::{
     },
     overlay::{IdentityContentKey, OverlayContentKey},
     state::StateContentKey,
+    canonical_indices::CanonicalIndicesContentKey,
 };
 
 pub use types::consensus;
@@ -38,10 +41,13 @@ pub use types::content_value::{
     beacon::{BeaconContentValue, PossibleBeaconContentValue},
     error::ContentValueError,
     history::{HistoryContentValue, PossibleHistoryContentValue},
+    canonical_indices::{CanonicalIndicesContentValue, PossibleCanonicalIndicesContentValue},
 };
 pub use types::execution::block_body::*;
 pub use types::execution::header::*;
 pub use types::execution::receipts::*;
+pub use types::execution::transaction::*;
+pub use types::execution::transaction_index::*;
 
 // Re-exports jsonrpsee crate
 pub use jsonrpsee;

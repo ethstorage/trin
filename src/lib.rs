@@ -2,6 +2,7 @@
 
 use std::sync::Arc;
 
+use ethportal_api::types::cli::CANONICAL_INDICES_NETWORK;
 use rpc::{launch_jsonrpc_server, RpcServerHandle};
 use tokio::sync::mpsc;
 use tokio::sync::RwLock;
@@ -19,6 +20,7 @@ use portalnet::{
     utils::db::{configure_node_data_dir, configure_trin_data_dir},
 };
 use trin_beacon::initialize_beacon_network;
+use trin_canonical_indices::initialize_canonical_indices_network;
 use trin_history::initialize_history_network;
 use trin_state::initialize_state_network;
 use trin_utils::version::get_trin_version;
@@ -125,6 +127,25 @@ pub async fn run_trin(
         {
             initialize_history_network(
                 &discovery,
+                Arc::clone(&utp_socket),
+                portalnet_config.clone(),
+                storage_config.clone(),
+                header_oracle.clone(),
+            )
+            .await?
+        } else {
+            (None, None, None, None)
+        };
+
+    // Initialize chain cindex sub-network service and event handlers, if selected
+    let (cindex_handler, cindex_network_task, cindex_event_tx, cindex_jsonrpc_tx) =
+        if trin_config
+            .networks
+            .iter()
+            .any(|val| val == CANONICAL_INDICES_NETWORK)
+        {
+            initialize_canonical_indices_network(
+                &discovery,
                 utp_socket,
                 portalnet_config.clone(),
                 storage_config.clone(),
@@ -144,6 +165,7 @@ pub async fn run_trin(
         history_jsonrpc_tx,
         state_jsonrpc_tx,
         beacon_jsonrpc_tx,
+        cindex_jsonrpc_tx,
     )
     .await?;
 
@@ -156,6 +178,9 @@ pub async fn run_trin(
     if let Some(handler) = beacon_handler {
         tokio::spawn(async move { handler.handle_client_queries().await });
     }
+    if let Some(handler) = cindex_handler {
+        tokio::spawn(async move { handler.handle_client_queries().await });
+    }
 
     // Spawn main portal events handler
     tokio::spawn(async move {
@@ -164,6 +189,7 @@ pub async fn run_trin(
             history_event_tx,
             state_event_tx,
             beacon_event_tx,
+            cindex_event_tx,
             utp_talk_reqs_tx,
         )
         .await;
@@ -177,6 +203,9 @@ pub async fn run_trin(
         tokio::spawn(network);
     }
     if let Some(network) = beacon_network_task {
+        tokio::spawn(network);
+    }
+    if let Some(network) = cindex_network_task {
         tokio::spawn(network);
     }
 
