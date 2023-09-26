@@ -206,6 +206,7 @@ pub enum ProtocolId {
     CanonicalIndices,
     Beacon,
     Utp,
+    Blob,
 }
 
 /// Encode hex string to protocol id
@@ -220,6 +221,7 @@ impl FromStr for ProtocolId {
             "0x500D" => Ok(ProtocolId::CanonicalIndices),
             "0x501A" => Ok(ProtocolId::Beacon),
             "0x757470" => Ok(ProtocolId::Utp),
+            "0x500E" => Ok(ProtocolId::Blob),
             _ => Err(ProtocolIdError::Invalid),
         }
     }
@@ -234,6 +236,7 @@ impl fmt::Display for ProtocolId {
             ProtocolId::CanonicalIndices => "Canonical Indices",
             ProtocolId::Beacon => "Beacon",
             ProtocolId::Utp => "uTP",
+            ProtocolId::Blob => "Blob",
         };
         write!(f, "{}", protocol)
     }
@@ -251,6 +254,7 @@ impl TryFrom<ProtocolId> for Vec<u8> {
             ProtocolId::CanonicalIndices => hex_decode("0x500D"),
             ProtocolId::Beacon => hex_decode("0x501A"),
             ProtocolId::Utp => hex_decode("0x757470"),
+            ProtocolId::Blob => hex_decode("0x500E"),
         };
         bytes.map_err(ProtocolIdError::Decode)
     }
