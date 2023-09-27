@@ -30,6 +30,7 @@ pub use types::content_key::{
     },
     overlay::{IdentityContentKey, OverlayContentKey},
     state::StateContentKey,
+    blob::BlobContentKey,
 };
 
 pub use types::consensus;

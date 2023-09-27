@@ -6338,6 +6338,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "trin-blob"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "discv5",
+ "env_logger 0.9.3",
+ "eth_trie",
+ "ethereum-types 0.12.1",
+ "ethportal-api",
+ "parking_lot 0.11.2",
+ "portalnet",
+ "rocksdb",
+ "test-log",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "trin-validation",
+ "utp-rs",
+]
+
+[[package]]
 name = "trin-history"
 version = "0.1.0"
 dependencies = [

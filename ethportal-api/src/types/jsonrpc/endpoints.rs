@@ -1,5 +1,5 @@
 use crate::types::enr::Enr;
-use crate::{BeaconContentKey, HistoryContentKey};
+use crate::{BeaconContentKey, HistoryContentKey, BlobContentKey};
 use crate::{BeaconContentValue, HistoryContentValue};
 use discv5::enr::NodeId;
 
@@ -101,4 +101,37 @@ pub enum BeaconEndpoint {
     PaginateLocalContentKeys(u64, u64),
     /// params: [node_id]
     RecursiveFindNodes(NodeId),
+}
+
+/// Blob network JSON-RPC endpoints. Start with "portal_blob" prefix
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub enum BlobEndpoint {
+    /// params: [enr]
+    AddEnr(Enr),
+    /// params: None
+    DataRadius,
+    /// params: [node_id]
+    DeleteEnr(NodeId),
+    /// params: [enr, content_key]
+    FindContent(Enr, BlobContentKey),
+    /// params: [enr, distances]
+    FindNodes(Enr, Vec<u16>),
+    /// params: [node_id]
+    GetEnr(NodeId),
+    /// params: content_key
+    LocalContent(BlobContentKey),
+    /// params: [node_id]
+    LookupEnr(NodeId),
+    /// params: [enr, content_key]
+    Offer(Enr, BlobContentKey, Option<HistoryContentValue>),
+    /// params: [enr]
+    Ping(Enr),
+    /// params: content_key
+    // RecursiveFindContent(HistoryContentKey),
+    /// params: content_key
+    // TraceRecursiveFindContent(HistoryContentKey),
+    /// params: [content_key, content_value]
+    Store(BlobContentKey, HistoryContentValue),
+    /// params: None
+    RoutingTableInfo,
 }
