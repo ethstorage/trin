@@ -1,6 +1,6 @@
 use crate::types::enr::Enr;
 use crate::{BeaconContentKey, HistoryContentKey, BlobContentKey};
-use crate::{BeaconContentValue, HistoryContentValue};
+use crate::{BeaconContentValue, HistoryContentValue, BlobContentValue};
 use discv5::enr::NodeId;
 
 /// Discv5 JSON-RPC endpoints. Start with "discv5_" prefix
@@ -123,7 +123,7 @@ pub enum BlobEndpoint {
     /// params: [node_id]
     LookupEnr(NodeId),
     /// params: [enr, content_key]
-    Offer(Enr, BlobContentKey, Option<HistoryContentValue>),
+    Offer(Enr, BlobContentKey, Option<BlobContentValue>),
     /// params: [enr]
     Ping(Enr),
     /// params: content_key
@@ -131,7 +131,7 @@ pub enum BlobEndpoint {
     /// params: content_key
     // TraceRecursiveFindContent(HistoryContentKey),
     /// params: [content_key, content_value]
-    Store(BlobContentKey, HistoryContentValue),
+    Store(BlobContentKey, BlobContentValue),
     /// params: None
     RoutingTableInfo,
 }

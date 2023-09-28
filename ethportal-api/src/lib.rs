@@ -39,10 +39,12 @@ pub use types::content_value::{
     beacon::{BeaconContentValue, PossibleBeaconContentValue},
     error::ContentValueError,
     history::{HistoryContentValue, PossibleHistoryContentValue},
+    blob::{BlobContentValue},
 };
 pub use types::execution::block_body::*;
 pub use types::execution::header::*;
 pub use types::execution::receipts::*;
+pub use types::execution::blob::*;
 
 // Re-exports jsonrpsee crate
 pub use jsonrpsee;
