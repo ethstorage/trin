@@ -1,12 +1,12 @@
 use crate::errors::{RpcError, WsHttpSamePortError};
 use crate::jsonrpsee::{Methods, RpcModule};
 use crate::rpc_server::{RpcServerConfig, RpcServerHandle};
-use crate::{BeaconNetworkApi, Discv5Api, EthApi, HistoryNetworkApi, Web3Api};
+use crate::{BeaconNetworkApi, Discv5Api, EthApi, HistoryNetworkApi, Web3Api, BlobNetworkApi};
 use ethportal_api::types::jsonrpc::request::{
     BeaconJsonRpcRequest, HistoryJsonRpcRequest, StateJsonRpcRequest, BlobJsonRpcRequest,
 };
 use ethportal_api::{
-    BeaconNetworkApiServer, Discv5ApiServer, EthApiServer, HistoryNetworkApiServer, Web3ApiServer,
+    BeaconNetworkApiServer, Discv5ApiServer, EthApiServer, HistoryNetworkApiServer, Web3ApiServer, BlobNetworkApiServer
 };
 use portalnet::discovery::Discovery;
 use serde::Deserialize;
@@ -33,6 +33,8 @@ pub enum PortalRpcModule {
     History,
     /// `web3_` module
     Web3,
+    /// `blob` module
+    Blob,
 }
 
 impl PortalRpcModule {
@@ -427,6 +429,13 @@ impl RpcModuleBuilder {
                                 .clone()
                                 .expect("Beacon protocol not initialized");
                             BeaconNetworkApi::new(beacon_tx).into_rpc().into()
+                        }
+                        PortalRpcModule::Blob => {
+                            let blob_tx = self
+                                .blob_tx
+                                .clone()
+                                .expect("Blob protocol not initialized");
+                            BlobNetworkApi::new(blob_tx).into_rpc().into()
                         }
                         PortalRpcModule::Web3 => Web3Api.into_rpc().into(),
                     })

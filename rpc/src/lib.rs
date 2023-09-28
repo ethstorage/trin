@@ -10,6 +10,7 @@ mod history_rpc;
 mod rpc_server;
 mod serde;
 mod web3_rpc;
+mod blob_rpc;
 
 use crate::jsonrpsee::server::ServerBuilder;
 pub use crate::rpc_server::RpcServerHandle;
@@ -27,6 +28,7 @@ use ethportal_api::types::jsonrpc::request::{
 };
 use history_rpc::HistoryNetworkApi;
 use web3_rpc::Web3Api;
+use blob_rpc::BlobNetworkApi;
 
 use crate::rpc_server::RpcServerConfig;
 use portalnet::discovery::Discovery;

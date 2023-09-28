@@ -50,6 +50,7 @@ pub async fn initialize_blob_network(
 )> {
     let (blob_jsonrpc_tx, blob_jsonrpc_rx) =
         mpsc::unbounded_channel::<BlobJsonRpcRequest>();
+    // TODO:
     // header_oracle.write().await.blob_jsonrpc_tx = Some(blob_jsonrpc_tx.clone());
     let (blob_event_tx, blob_event_rx) = mpsc::unbounded_channel::<TalkRequest>();
     let blob_network = BlobNetwork::new(

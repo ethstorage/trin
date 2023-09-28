@@ -14,12 +14,14 @@ mod history;
 pub mod types;
 pub mod utils;
 mod web3;
+mod blob;
 
 pub use crate::discv5::{Discv5ApiClient, Discv5ApiServer};
 pub use beacon::{BeaconNetworkApiClient, BeaconNetworkApiServer};
 pub use eth::{EthApiClient, EthApiServer};
 pub use history::{HistoryNetworkApiClient, HistoryNetworkApiServer};
 pub use web3::{Web3ApiClient, Web3ApiServer};
+pub use blob::{BlobNetworkApiClient, BlobNetworkApiServer};
 
 pub use types::content_key::{
     beacon::{BeaconContentKey, LightClientBootstrapKey, LightClientUpdatesByRangeKey},
@@ -39,7 +41,7 @@ pub use types::content_value::{
     beacon::{BeaconContentValue, PossibleBeaconContentValue},
     error::ContentValueError,
     history::{HistoryContentValue, PossibleHistoryContentValue},
-    blob::{BlobContentValue},
+    blob::{BlobContentValue, PossibleBlobContentValue},
 };
 pub use types::execution::block_body::*;
 pub use types::execution::header::*;
