@@ -23,7 +23,7 @@ use ethportal_api::types::cli::{
     TrinConfig, Web3TransportType, BEACON_NETWORK, HISTORY_NETWORK, STATE_NETWORK,
 };
 use ethportal_api::types::jsonrpc::request::{
-    BeaconJsonRpcRequest, HistoryJsonRpcRequest, StateJsonRpcRequest,
+    BeaconJsonRpcRequest, HistoryJsonRpcRequest, StateJsonRpcRequest, BlobJsonRpcRequest,
 };
 use history_rpc::HistoryNetworkApi;
 use web3_rpc::Web3Api;
@@ -40,6 +40,7 @@ pub async fn launch_jsonrpc_server(
     history_handler: Option<mpsc::UnboundedSender<HistoryJsonRpcRequest>>,
     state_handler: Option<mpsc::UnboundedSender<StateJsonRpcRequest>>,
     beacon_handler: Option<mpsc::UnboundedSender<BeaconJsonRpcRequest>>,
+    blob_handler: Option<mpsc::UnboundedSender<BlobJsonRpcRequest>>,
 ) -> Result<RpcServerHandle, RpcError> {
     // Discv5 and Web3 modules are enabled with every network
     let mut modules = vec![PortalRpcModule::Discv5, PortalRpcModule::Web3];
@@ -65,6 +66,7 @@ pub async fn launch_jsonrpc_server(
                 .maybe_with_history(history_handler)
                 .maybe_with_beacon(beacon_handler)
                 .maybe_with_state(state_handler)
+                .maybe_with_blob(blob_handler)
                 .build(transport);
 
             RpcServerConfig::default()
@@ -84,6 +86,7 @@ pub async fn launch_jsonrpc_server(
                 .maybe_with_history(history_handler)
                 .maybe_with_beacon(beacon_handler)
                 .maybe_with_state(state_handler)
+                .maybe_with_blob(blob_handler)
                 .build(transport);
 
             RpcServerConfig::default()

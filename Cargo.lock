@@ -6310,6 +6310,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "trin-beacon",
+ "trin-blob",
  "trin-history",
  "trin-state",
  "trin-utils",

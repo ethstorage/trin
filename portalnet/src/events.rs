@@ -18,6 +18,8 @@ pub struct PortalnetEvents {
     pub state_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
     /// Send overlay `TalkReq` to beacon network
     pub beacon_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
+    // Send overlay `TalkReq` to blob network
+    pub blob_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
     /// Send TalkReq events with "utp" protocol id to `UtpListener`
     pub utp_talk_reqs: mpsc::UnboundedSender<TalkRequest>,
 }
@@ -28,6 +30,7 @@ impl PortalnetEvents {
         history_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
         state_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
         beacon_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
+        blob_overlay_sender: Option<mpsc::UnboundedSender<TalkRequest>>,
         utp_talk_reqs: mpsc::UnboundedSender<TalkRequest>,
     ) -> Self {
         Self {
@@ -35,6 +38,7 @@ impl PortalnetEvents {
             history_overlay_sender,
             state_overlay_sender,
             beacon_overlay_sender,
+            blob_overlay_sender,
             utp_talk_reqs,
         }
     }
@@ -84,6 +88,16 @@ impl PortalnetEvents {
                             }
                         }
                         None => error!("State event handler not initialized!"),
+                    };
+                }
+                ProtocolId::Blob => {
+                    match &self.blob_overlay_sender {
+                        Some(tx) => {
+                            if let Err(err) = tx.send(request) {
+                                error!("Error sending discv5 talk request to blob network: {err}");
+                            }
+                        }
+                        None => error!("Blob event handler not initialized!"),
                     };
                 }
                 ProtocolId::Utp => {

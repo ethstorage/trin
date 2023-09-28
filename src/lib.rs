@@ -126,7 +126,7 @@ pub async fn run_trin(
         {
             initialize_history_network(
                 &discovery,
-                utp_socket,
+                Arc::clone(&utp_socket),
                 portalnet_config.clone(),
                 storage_config.clone(),
                 header_oracle.clone(),
@@ -161,9 +161,10 @@ pub async fn run_trin(
     let rpc_handle: RpcServerHandle = launch_jsonrpc_server(
         jsonrpc_trin_config,
         jsonrpc_discovery,
-        blob_jsonrpc_tx,
+        history_jsonrpc_tx,
         state_jsonrpc_tx,
         beacon_jsonrpc_tx,
+        blob_jsonrpc_tx,
     )
     .await?;
 
@@ -176,6 +177,9 @@ pub async fn run_trin(
     if let Some(handler) = beacon_handler {
         tokio::spawn(async move { handler.handle_client_queries().await });
     }
+    if let Some(handler) = blob_handler {
+        tokio::spawn(async move { handler.handle_client_queries().await });
+    }
 
     // Spawn main portal events handler
     tokio::spawn(async move {
@@ -184,6 +188,7 @@ pub async fn run_trin(
             history_event_tx,
             state_event_tx,
             beacon_event_tx,
+            blob_event_tx,
             utp_talk_reqs_tx,
         )
         .await;
@@ -197,6 +202,9 @@ pub async fn run_trin(
         tokio::spawn(network);
     }
     if let Some(network) = beacon_network_task {
+        tokio::spawn(network);
+    }
+    if let Some(network) = blob_network_task {
         tokio::spawn(network);
     }
 

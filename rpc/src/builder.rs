@@ -3,7 +3,7 @@ use crate::jsonrpsee::{Methods, RpcModule};
 use crate::rpc_server::{RpcServerConfig, RpcServerHandle};
 use crate::{BeaconNetworkApi, Discv5Api, EthApi, HistoryNetworkApi, Web3Api};
 use ethportal_api::types::jsonrpc::request::{
-    BeaconJsonRpcRequest, HistoryJsonRpcRequest, StateJsonRpcRequest,
+    BeaconJsonRpcRequest, HistoryJsonRpcRequest, StateJsonRpcRequest, BlobJsonRpcRequest,
 };
 use ethportal_api::{
     BeaconNetworkApiServer, Discv5ApiServer, EthApiServer, HistoryNetworkApiServer, Web3ApiServer,
@@ -282,6 +282,8 @@ pub struct RpcModuleBuilder {
     beacon_tx: Option<mpsc::UnboundedSender<BeaconJsonRpcRequest>>,
     /// State protocol
     state_tx: Option<mpsc::UnboundedSender<StateJsonRpcRequest>>,
+    // Blob protocol
+    blob_tx: Option<mpsc::UnboundedSender<BlobJsonRpcRequest>>,
 }
 
 impl RpcModuleBuilder {
@@ -292,6 +294,7 @@ impl RpcModuleBuilder {
             history_tx: None,
             beacon_tx: None,
             state_tx: None,
+            blob_tx: None,
         }
     }
 
@@ -316,6 +319,14 @@ impl RpcModuleBuilder {
         beacon_tx: Option<mpsc::UnboundedSender<BeaconJsonRpcRequest>>,
     ) -> Self {
         self.beacon_tx = beacon_tx;
+        self
+    }
+
+    pub fn maybe_with_blob(
+        mut self,
+        blob_tx: Option<mpsc::UnboundedSender<BlobJsonRpcRequest>>,
+    ) -> Self {
+        self.blob_tx = blob_tx;
         self
     }
 
