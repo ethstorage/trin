@@ -21,7 +21,7 @@ use errors::RpcError;
 use eth_rpc::EthApi;
 use ethportal_api::jsonrpsee;
 use ethportal_api::types::cli::{
-    TrinConfig, Web3TransportType, BEACON_NETWORK, HISTORY_NETWORK, STATE_NETWORK,
+    TrinConfig, Web3TransportType, BEACON_NETWORK, HISTORY_NETWORK, STATE_NETWORK, BLOB_NETWORK,
 };
 use ethportal_api::types::jsonrpc::request::{
     BeaconJsonRpcRequest, HistoryJsonRpcRequest, StateJsonRpcRequest, BlobJsonRpcRequest,
@@ -57,6 +57,9 @@ pub async fn launch_jsonrpc_server(
                 // not implemented
             }
             BEACON_NETWORK => modules.push(PortalRpcModule::Beacon),
+            BLOB_NETWORK => {
+                modules.push(PortalRpcModule::Blob);
+            },
             _ => panic!("Unexpected network type: {}", network),
         }
     }
