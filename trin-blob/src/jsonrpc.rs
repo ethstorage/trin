@@ -63,6 +63,13 @@ async fn complete_request(network: Arc<RwLock<BlobNetwork>>, request: BlobJsonRp
         BlobEndpoint::RoutingTableInfo => Ok(bucket_entries_to_json(
             network.read().await.overlay.bucket_entries(),
         )),
+        BlobEndpoint::RecursiveFindNodes(node_id) => recursive_find_nodes(network, node_id).await,
+        BlobEndpoint::RecursiveFindContent(content_key) => {
+            recursive_find_content(network, content_key, false).await
+        },
+        BlobEndpoint::Gossip(content_key, content_value) => {
+            gossip(network, content_key, content_value).await
+        }
     };
     let _ = request.resp.send(response);
 }
@@ -147,22 +154,22 @@ async fn local_content(
     response
 }
 
-/// Constructs a JSON call for the PaginateLocalContentKeys method.
-async fn paginate_local_content_keys(
-    network: Arc<RwLock<BlobNetwork>>,
-    offset: u64,
-    limit: u64,
-) -> Result<Value, String> {
-    let store = network.read().await.overlay.store.clone();
-    let response = match store.read().paginate(&offset, &limit)
-        {
-            Ok(val) => Ok(json!(val)),
-            Err(err) => Err(format!(
-                "Database error while paginating local content keys with offset: {offset:?}, limit: {limit:?}. Error message: {err}"
-            )),
-        };
-    response
-}
+// /// Constructs a JSON call for the PaginateLocalContentKeys method.
+// async fn paginate_local_content_keys(
+//     network: Arc<RwLock<BlobNetwork>>,
+//     offset: u64,
+//     limit: u64,
+// ) -> Result<Value, String> {
+//     let store = network.read().await.overlay.store.clone();
+//     let response = match store.read().paginate(&offset, &limit)
+//         {
+//             Ok(val) => Ok(json!(val)),
+//             Err(err) => Err(format!(
+//                 "Database error while paginating local content keys with offset: {offset:?}, limit: {limit:?}. Error message: {err}"
+//             )),
+//         };
+//     response
+// }
 
 /// Constructs a JSON call for the Store method.
 async fn store(

@@ -1,5 +1,5 @@
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use ssz::{Encode, SszDecoderBuilder, SszEncoder};
+use serde::Deserialize;
+use ssz::{SszDecoderBuilder, SszEncoder};
 
 use crate::types::bytes::ByteList;
 

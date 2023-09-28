@@ -122,16 +122,20 @@ pub enum BlobEndpoint {
     LocalContent(BlobContentKey),
     /// params: [node_id]
     LookupEnr(NodeId),
+    /// params: [content_key, content_value]
+    Gossip(BlobContentKey, BlobContentValue),
     /// params: [enr, content_key]
     Offer(Enr, BlobContentKey, Option<BlobContentValue>),
     /// params: [enr]
     Ping(Enr),
     /// params: content_key
-    // RecursiveFindContent(HistoryContentKey),
+    RecursiveFindContent(BlobContentKey),
     /// params: content_key
     // TraceRecursiveFindContent(HistoryContentKey),
     /// params: [content_key, content_value]
     Store(BlobContentKey, BlobContentValue),
     /// params: None
     RoutingTableInfo,
+    /// params: [node_id]
+    RecursiveFindNodes(NodeId),
 }

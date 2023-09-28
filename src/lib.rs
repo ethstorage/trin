@@ -10,7 +10,7 @@ use utp_rs::socket::UtpSocket;
 
 #[cfg(windows)]
 use ethportal_api::types::cli::Web3TransportType;
-use ethportal_api::types::cli::{TrinConfig, BEACON_NETWORK, HISTORY_NETWORK, STATE_NETWORK};
+use ethportal_api::types::cli::{TrinConfig, BEACON_NETWORK, HISTORY_NETWORK, STATE_NETWORK, BLOB_NETWORK};
 use portalnet::{
     discovery::{Discovery, Discv5UdpSocket},
     events::PortalnetEvents,
@@ -21,6 +21,7 @@ use portalnet::{
 use trin_beacon::initialize_beacon_network;
 use trin_history::initialize_history_network;
 use trin_state::initialize_state_network;
+use trin_blob::initialize_blob_network;
 use trin_utils::version::get_trin_version;
 use trin_validation::{accumulator::MasterAccumulator, oracle::HeaderOracle};
 
@@ -135,13 +136,32 @@ pub async fn run_trin(
             (None, None, None, None)
         };
 
+    // Initialize chain blob sub-network service and event handlers, if selected
+    let (blob_handler, blob_network_task, blob_event_tx, blob_jsonrpc_tx) =
+        if trin_config
+            .networks
+            .iter()
+            .any(|val| val == BLOB_NETWORK)
+        {
+            initialize_blob_network(
+                &discovery,
+                utp_socket,
+                portalnet_config.clone(),
+                storage_config.clone(),
+                header_oracle.clone(),
+            )
+            .await?
+        } else {
+            (None, None, None, None)
+        };
+
     // Launch JSON-RPC server
     let jsonrpc_trin_config = trin_config.clone();
     let jsonrpc_discovery = Arc::clone(&discovery);
     let rpc_handle: RpcServerHandle = launch_jsonrpc_server(
         jsonrpc_trin_config,
         jsonrpc_discovery,
-        history_jsonrpc_tx,
+        blob_jsonrpc_tx,
         state_jsonrpc_tx,
         beacon_jsonrpc_tx,
     )

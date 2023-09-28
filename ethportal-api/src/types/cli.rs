@@ -16,6 +16,7 @@ pub const BEACON_NETWORK: &str = "beacon";
 pub const HISTORY_NETWORK: &str = "history";
 pub const STATE_NETWORK: &str = "state";
 const DEFAULT_SUBNETWORKS: &str = "history";
+pub const BLOB_NETWORK: &str = "blob";
 pub const DEFAULT_STORAGE_CAPACITY_MB: &str = "100";
 pub const DEFAULT_WEB3_TRANSPORT: &str = "ipc";
 
