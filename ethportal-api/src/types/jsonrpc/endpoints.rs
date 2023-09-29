@@ -136,6 +136,8 @@ pub enum BlobEndpoint {
     Store(BlobContentKey, BlobContentValue),
     /// params: None
     RoutingTableInfo,
+    /// params: [offset, limit]
+    // PaginateLocalContentKeys(u64, u64),
     /// params: [node_id]
     RecursiveFindNodes(NodeId),
 }

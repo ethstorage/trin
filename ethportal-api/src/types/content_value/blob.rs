@@ -1,7 +1,7 @@
 use crate::types::constants::CONTENT_ABSENT;
 use crate::types::content_value::ContentValue;
 use crate::utils::bytes::{hex_decode, hex_encode};
-use crate::{ContentValueError, Blob};
+use crate::{Blob, ContentValueError};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use ssz::{Decode, Encode};
 
@@ -49,9 +49,7 @@ impl<'de> Deserialize<'de> for PossibleBlobContentValue {
         let content_bytes = hex_decode(&s).map_err(serde::de::Error::custom)?;
 
         if let Ok(value) = Blob::from_ssz_bytes(&content_bytes) {
-            return Ok(Self::ContentPresent(
-                BlobContentValue::Blob(value),
-            ));
+            return Ok(Self::ContentPresent(BlobContentValue::Blob(value)));
         }
 
         Err(ContentValueError::UnknownContent {
@@ -118,5 +116,45 @@ impl<'de> Deserialize<'de> for BlobContentValue {
     }
 }
 
-
 // TODO: test
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    use crate::BlobContentValue;
+
+    #[test]
+    fn content_value_deserialization_failure_displays_debuggable_data() {
+        let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let item_result = BlobContentValue::decode(&data);
+        let error = item_result.unwrap_err();
+        // Test the error Debug representation
+        assert_eq!(
+            error,
+            ContentValueError::UnknownContent {
+                bytes: "0x010203040506070809".to_string(),
+                network: "blob".to_string()
+            }
+        );
+        // Test the error Display representation.
+        assert_eq!(
+            error.to_string(),
+            "could not determine content type of 0x010203040506070809 from blob network"
+        );
+    }
+
+    #[test]
+    fn content_value_deserialization_displays_debuggable_data() {
+        let item = BlobContentValue::Blob(Blob {
+            blob: vec![1, 2, 3],
+        });
+        let data = item.encode();
+        let result = BlobContentValue::decode(&data);
+        let item1 = result.unwrap();
+
+        // Test decoded one equals the original one
+        assert_eq!(item, item1,);
+        // Test the raw data
+        assert_eq!(data, vec![4, 0, 0, 0, 1, 2, 3]);
+    }
+}
